@@ -1,0 +1,3 @@
+# build output
+/cmd/img2txt/img2txt
+*.test
