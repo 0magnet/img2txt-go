@@ -1,6 +1,6 @@
 //go:build js && wasm
 
-// Command web is the img2txt-go demo: an image in, coloured character art out.
+// Command web is the img2txt-go demo: an image in, colored character art out.
 //
 // It runs the same pipeline cmd/img2txt does — decode, size the canvas to the
 // image's aspect against a 6x10 font, dither, export — so what the page shows
@@ -163,7 +163,7 @@ func sample() []byte {
 				continue
 			}
 			// Dark blue through cyan to yellow and white: four widely spaced
-			// hues, so the sixteen-colour palette has something to choose
+			// hues, so the sixteen-color palette has something to choose
 			// between and the bands stay legible as characters.
 			t := math.Sqrt(float64(i) / 60)
 			switch {
