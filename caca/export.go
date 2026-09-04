@@ -281,7 +281,7 @@ func htmlChar(b []byte, ch rune) []byte {
 	switch {
 	case ch == MagicFullwidth:
 		return b
-	case ch <= 0x00000020 || (ch >= 0x0000007f && ch <= 0x000000a0):
+	case uch(ch) <= 0x00000020 || (uch(ch) >= 0x0000007f && uch(ch) <= 0x000000a0):
 		// Control characters and space become U+00A0 NO-BREAK SPACE.
 		return append(b, "&#160;"...)
 	case ch == '&':
@@ -294,10 +294,10 @@ func htmlChar(b []byte, ch rune) []byte {
 		return append(b, "&quot;"...)
 	case ch == '\'':
 		return append(b, "&#39;"...)
-	case ch < 0x00000080:
+	case uch(ch) < 0x00000080:
 		return append(b, byte(ch))
-	case ch <= 0x0010fffd && (ch&0x0000fffe) != 0x0000fffe &&
-		(ch < 0x0000d800 || ch > 0x0000dfff):
+	case uch(ch) <= 0x0010fffd && (uch(ch)&0x0000fffe) != 0x0000fffe &&
+		(uch(ch) < 0x0000d800 || uch(ch) > 0x0000dfff):
 		return append(b, fmt.Sprintf("&#%d;", ch)...)
 	default:
 		return append(b, fmt.Sprintf("&#%d;", 0x0000fffd)...)
@@ -395,8 +395,8 @@ func (cv *Canvas) exportHTML3() []byte {
 			// Factor adjacent cells that share attributes into one colspan.
 			l := 1
 			for x+l < cv.Width &&
-				((y != 0 && linechar[x+l] > 0x00000020 &&
-					(linechar[x+l] < 0x0000007f || linechar[x+l] > 0x000000a0)) ||
+				((y != 0 && uch(linechar[x+l]) > 0x00000020 &&
+					(uch(linechar[x+l]) < 0x0000007f || uch(linechar[x+l]) > 0x000000a0)) ||
 					!isBoundary(x+l) ||
 					linechar[x+l] == MagicFullwidth ||
 					cv.Height == 1) &&
@@ -410,7 +410,7 @@ func (cv *Canvas) exportHTML3() []byte {
 			nonblank := false
 			for i := 0; i < l; i++ {
 				c := linechar[x+i]
-				if !(c <= 0x00000020 || (c >= 0x0000007f && c <= 0x000000a0)) {
+				if !(uch(c) <= 0x00000020 || (uch(c) >= 0x0000007f && uch(c) <= 0x000000a0)) {
 					nonblank = true
 				}
 			}
@@ -620,7 +620,7 @@ func (cv *Canvas) exportIRC() []byte {
 						b = append(b, fmt.Sprintf("\x03%d,%d", fg, bg)...)
 					}
 				}
-				if ch >= '0' && ch <= '9' {
+				if uch(ch) >= 0x30 && uch(ch) <= 0x39 {
 					needEscape = true
 				}
 				if needEscape {
@@ -704,7 +704,7 @@ func (cv *Canvas) exportPS() []byte {
 				float32(argb[7])*(1.0/0xf))...)
 
 			switch {
-			case ch < 0x00000020 || ch >= 0x00000080:
+			case uch(ch) < 0x00000020 || uch(ch) >= 0x00000080:
 				b = append(b, "(?) show\n"...)
 			default:
 				switch byte(ch & 0x7f) {
@@ -763,9 +763,9 @@ func (cv *Canvas) exportSVG() []byte {
 				AttrToRGB12Fg(lineattr[x]), bold, italic, x*6, y*10+8)...)
 
 			switch {
-			case ch < 0x00000020:
+			case uch(ch) < 0x00000020:
 				b = append(b, '?')
-			case ch > 0x0000007f:
+			case uch(ch) > 0x0000007f:
 				b = UTF32ToUTF8(b, ch)
 			default:
 				switch ch {

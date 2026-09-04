@@ -2,13 +2,21 @@ package caca
 
 import "math/rand"
 
+// uch returns a character as the unsigned value libcaca compares.
+//
+// A canvas cell holds a rune, which is signed, but libcaca's is a uint32 and
+// its decoder happily produces code points above 0x7FFFFFFF from malformed
+// UTF-8. Ordered comparisons on such a cell have to be made unsigned or they
+// come out backwards.
+func uch(ch rune) uint32 { return uint32(ch) }
+
 // UTF32ToCP437 converts a Unicode code point to its CP437 byte, or '?' when it
 // has no CP437 representation.
 func UTF32ToCP437(ch rune) byte {
-	if ch < 0x00000020 {
+	if uch(ch) < 0x00000020 {
 		return '?'
 	}
-	if ch < 0x00000080 {
+	if uch(ch) < 0x00000080 {
 		return byte(ch)
 	}
 	for i, r := range cp437Lookup1 {
@@ -78,34 +86,35 @@ func UTF32ToUTF8(dst []byte, ch rune) []byte {
 // U+2E80 does not, and the supplementary planes are fullwidth as far as
 // U+DFFFF. Anything finer would disagree with the C library.
 func IsFullwidth(ch rune) bool {
+	u := uch(ch)
 	switch {
-	case ch < 0x2e80: // standard stuff
+	case u < 0x2e80: // standard stuff
 		return false
-	case ch < 0xa700: // Japanese, Korean, CJK, Yi...
+	case u < 0xa700: // Japanese, Korean, CJK, Yi...
 		return true
-	case ch < 0xac00: // modified tone letters, Syloti Nagri
+	case u < 0xac00: // modified tone letters, Syloti Nagri
 		return false
-	case ch < 0xd800: // Hangul syllables
+	case u < 0xd800: // Hangul syllables
 		return true
-	case ch < 0xf900:
+	case u < 0xf900:
 		return false
-	case ch < 0xfb00: // more CJK
+	case u < 0xfb00: // more CJK
 		return true
-	case ch < 0xfe20:
+	case u < 0xfe20:
 		return false
-	case ch < 0xfe70: // more CJK
+	case u < 0xfe70: // more CJK
 		return true
-	case ch < 0xff00:
+	case u < 0xff00:
 		return false
-	case ch < 0xff61: // fullwidth forms
+	case u < 0xff61: // fullwidth forms
 		return true
-	case ch < 0xffe0: // halfwidth forms
+	case u < 0xffe0: // halfwidth forms
 		return false
-	case ch < 0xffe8: // more fullwidth forms
+	case u < 0xffe8: // more fullwidth forms
 		return true
-	case ch < 0x20000:
+	case u < 0x20000:
 		return false
-	case ch < 0xe0000: // more CJK
+	case u < 0xe0000: // more CJK
 		return true
 	default:
 		return false
