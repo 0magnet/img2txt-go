@@ -6,6 +6,10 @@ coloured ASCII/ANSI art and to every text format libcaca supports.
 
 No cgo, no libcaca, no Imlib2 — a single static binary.
 
+**[Live demo](https://0magnet.github.io/img2txt-go/)** — drop in an image, pick a width, dither algorithm and output format. It runs the same pipeline the binary does, and the image never leaves the tab.
+
+![img2txt-go in the browser](docs/img2txt-go-demo.png "a generated Mandelbrot set converted to coloured character art, with the width, dither and format controls")
+
 ## Install
 
 ```

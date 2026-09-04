@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext x='1' y='12' font-family='monospace' font-size='11' fill='%23e8825f'%3E%23%23%3C/text%3E%3C/svg%3E">
+<title>img2txt-go — images into coloured character art</title>
+<style>
+  html, body { margin: 0; min-height: 100%; background: #10131a; color: #d3d7cf; }
+  body { font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+         padding: 18px; box-sizing: border-box; }
+  .row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+         margin-bottom: 14px; }
+  label { color: #6b7280; }
+  select, input[type=file] { background: #171b24; color: #d3d7cf;
+           border: 1px solid #2b3240; border-radius: 4px; padding: 5px 8px;
+           font: inherit; }
+  select:focus, input:focus { outline: none; border-color: #729fcf; }
+  input[type=range] { vertical-align: middle; }
+  h2 { font-size: 11px; font-weight: normal; color: #6b7280; margin: 16px 0 6px;
+       text-transform: uppercase; letter-spacing: .08em; }
+  /* libcaca's html and svg exports are whole documents, not fragments, so
+     the preview is an iframe: it renders exactly the file the tool writes,
+     with its own monospace styling and nothing of this page's leaking in. */
+  #out { display: block; width: 100%; height: 620px; background: #000;
+         border: 1px solid #1d222c; border-radius: 4px; }
+  #msg { color: #6b7280; }
+  pre#raw { margin: 0; padding: 12px; background: #0b0e14; border: 1px solid #1d222c;
+        border-radius: 4px; overflow: auto; max-height: 260px;
+        white-space: pre; color: #9aa3b2; }
+</style>
+</head>
+<body>
+<div class="row">
+  <span><label for="file">image</label> <input id="file" type="file" accept="image/*"></span>
+  <span><label for="cols">width</label>
+        <input id="cols" type="range" min="20" max="200" value="100">
+        <span id="colsout">100</span> cols</span>
+  <span><label for="algo">dither</label> <select id="algo"></select></span>
+  <span><label for="format">format</label> <select id="format"></select></span>
+</div>
+<iframe id="out" title="rendered output" sandbox=""></iframe>
+<p id="msg">loading…</p>
+<h2>exported source</h2>
+<pre id="raw"></pre>
+<script src="wasm_exec.js"></script>
+<script>
+  const go = new Go();
+  WebAssembly.instantiateStreaming(fetch("img2txt.wasm"), go.importObject)
+    .then((r) => go.run(r.instance))
+    .catch((e) => { document.getElementById("msg").textContent = "failed to load: " + e; });
+</script>
+</body>
+</html>
