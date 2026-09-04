@@ -65,18 +65,45 @@ func UTF32ToUTF8(dst []byte, ch rune) []byte {
 	}
 }
 
-// IsFullwidth reports whether a code point occupies two cells. The ranges are
-// those libcaca uses.
+// IsFullwidth reports whether a code point occupies two cells.
+//
+// These are libcaca's own ranges, which are coarser than the Unicode East Asian
+// Width property: everything from U+2E80 to U+A6FF counts, Hangul Jamo below
+// U+2E80 does not, and the supplementary planes are fullwidth as far as
+// U+DFFFF. Anything finer would disagree with the C library.
 func IsFullwidth(ch rune) bool {
-	return (ch >= 0x1100 && ch <= 0x115f) || // Hangul Jamo
-		(ch >= 0x2e80 && ch <= 0xa4cf && ch != 0x303f) || // CJK, Yi
-		(ch >= 0xac00 && ch <= 0xd7a3) || // Hangul syllables
-		(ch >= 0xf900 && ch <= 0xfaff) || // CJK compatibility ideographs
-		(ch >= 0xfe30 && ch <= 0xfe6f) || // CJK compatibility forms
-		(ch >= 0xff00 && ch <= 0xff60) || // fullwidth forms
-		(ch >= 0xffe0 && ch <= 0xffe6) ||
-		(ch >= 0x20000 && ch <= 0x2fffd) ||
-		(ch >= 0x30000 && ch <= 0x3fffd)
+	switch {
+	case ch < 0x2e80: // standard stuff
+		return false
+	case ch < 0xa700: // Japanese, Korean, CJK, Yi...
+		return true
+	case ch < 0xac00: // modified tone letters, Syloti Nagri
+		return false
+	case ch < 0xd800: // Hangul syllables
+		return true
+	case ch < 0xf900:
+		return false
+	case ch < 0xfb00: // more CJK
+		return true
+	case ch < 0xfe20:
+		return false
+	case ch < 0xfe70: // more CJK
+		return true
+	case ch < 0xff00:
+		return false
+	case ch < 0xff61: // fullwidth forms
+		return true
+	case ch < 0xffe0: // halfwidth forms
+		return false
+	case ch < 0xffe8: // more fullwidth forms
+		return true
+	case ch < 0x20000:
+		return false
+	case ch < 0xe0000: // more CJK
+		return true
+	default:
+		return false
+	}
 }
 
 // rngState backs the "random" dithering algorithm. libcaca seeds its generator
