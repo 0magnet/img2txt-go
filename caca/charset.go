@@ -39,30 +39,36 @@ func CP437ToUTF32(ch byte) rune {
 	return 0
 }
 
-// UTF32ToUTF8 appends the UTF-8 encoding of ch to dst. It follows libcaca's
-// encoder, which allows the historical five and six byte forms.
+// UTF32ToUTF8 appends the UTF-8 encoding of ch to dst.
+//
+// This is caca_utf32_to_utf8(), which stops at four bytes. A code point above
+// U+1FFFFF therefore does not get the historical five or six byte form: it is
+// encoded as four bytes whose lead byte has overflowed, which is what the C
+// library writes and what its own decoder reads back.
 func UTF32ToUTF8(dst []byte, ch rune) []byte {
 	u := uint32(ch)
-	switch {
-	case u < 0x80:
+	if u < 0x80 {
 		return append(dst, byte(u))
-	case u < 0x800:
-		return append(dst, byte(0xc0|(u>>6)), byte(0x80|(u&0x3f)))
-	case u < 0x10000:
-		return append(dst, byte(0xe0|(u>>12)), byte(0x80|((u>>6)&0x3f)),
-			byte(0x80|(u&0x3f)))
-	case u < 0x200000:
-		return append(dst, byte(0xf0|(u>>18)), byte(0x80|((u>>12)&0x3f)),
-			byte(0x80|((u>>6)&0x3f)), byte(0x80|(u&0x3f)))
-	case u < 0x4000000:
-		return append(dst, byte(0xf8|(u>>24)), byte(0x80|((u>>18)&0x3f)),
-			byte(0x80|((u>>12)&0x3f)), byte(0x80|((u>>6)&0x3f)),
-			byte(0x80|(u&0x3f)))
-	default:
-		return append(dst, byte(0xfc|(u>>30)), byte(0x80|((u>>24)&0x3f)),
-			byte(0x80|((u>>18)&0x3f)), byte(0x80|((u>>12)&0x3f)),
-			byte(0x80|((u>>6)&0x3f)), byte(0x80|(u&0x3f)))
 	}
+
+	mark := [7]byte{0x00, 0x00, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc}
+
+	n := 4
+	switch {
+	case u < 0x800:
+		n = 2
+	case u < 0x10000:
+		n = 3
+	}
+
+	var buf [4]byte
+	for i := n - 1; i > 0; i-- {
+		buf[i] = byte(u|0x80) & 0xbf
+		u >>= 6
+	}
+	buf[0] = byte(u) | mark[n]
+
+	return append(dst, buf[:n]...)
 }
 
 // IsFullwidth reports whether a code point occupies two cells.
