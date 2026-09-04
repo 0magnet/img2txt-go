@@ -80,3 +80,33 @@ gamma table — and therefore a handful of dithered cells — to differ slightly
 ## Licence
 
 WTFPL, the same as libcaca. See `LICENSE`.
+
+## Dependency Graph
+
+Made with [goda](https://github.com/loov/goda):
+
+```
+go run github.com/loov/goda@latest graph github.com/0magnet/img2txt-go/... | dot -Tsvg -o docs/img2txt-go-goda-graph.svg
+```
+
+![Dependency Graph](docs/img2txt-go-goda-graph.svg "github.com/0magnet/img2txt-go Dependency Graph")
+
+## Lines of Code
+
+Made with [gocloc](https://github.com/hhatto/gocloc) (excludes `vendor/`, `node_modules/`, `.git/`):
+
+```
+gocloc --not-match-d='(vendor|node_modules|\.git)' .
+```
+
+```
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Go                              10            272            180           2342
+YAML                             1              0              7             98
+Markdown                         1             21              0             61
+-------------------------------------------------------------------------------
+TOTAL                           12            293            187           2501
+-------------------------------------------------------------------------------
+```
