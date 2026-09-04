@@ -80,18 +80,47 @@ func rgb12to24(c uint16) uint32 {
 
 // attrToARGB64 splits an attribute into background and foreground ARGB
 // nibbles, matching caca_attr_to_argb64.
+//
+// This is not AttrToRGB12Bg/Fg with an alpha nibble bolted on: the two
+// functions disagree about CACA_TRANSPARENT, which becomes opaque black there
+// and transparent white here, and the alpha nibble comes from the palette entry
+// rather than being assumed opaque.
 func attrToARGB64(attr uint32) [8]uint8 {
+	fg16 := uint16((attr >> 4) & 0x3fff)
+	bg16 := uint16(attr >> 18)
+
+	switch {
+	case bg16 < (0x10 | 0x40):
+		bg16 = ansitab16[bg16^0x40]
+	case bg16 == (Default | 0x40):
+		bg16 = ansitab16[Black]
+	case bg16 == (Transparent | 0x40):
+		bg16 = 0x0fff
+	default:
+		bg16 = ((bg16 << 2) & 0xf000) | ((bg16 << 1) & 0x0fff)
+	}
+
+	switch {
+	case fg16 < (0x10 | 0x40):
+		fg16 = ansitab16[fg16^0x40]
+	case fg16 == (Default | 0x40):
+		fg16 = ansitab16[LightGray]
+	case fg16 == (Transparent | 0x40):
+		fg16 = 0x0fff
+	default:
+		fg16 = ((fg16 << 2) & 0xf000) | ((fg16 << 1) & 0x0fff)
+	}
+
 	var argb [8]uint8
-	bg := AttrToRGB12Bg(attr)
-	fg := AttrToRGB12Fg(attr)
-	argb[0] = 0xf
-	argb[1] = uint8((bg >> 8) & 0xf)
-	argb[2] = uint8((bg >> 4) & 0xf)
-	argb[3] = uint8(bg & 0xf)
-	argb[4] = 0xf
-	argb[5] = uint8((fg >> 8) & 0xf)
-	argb[6] = uint8((fg >> 4) & 0xf)
-	argb[7] = uint8(fg & 0xf)
+	argb[0] = uint8(bg16 >> 12)
+	argb[1] = uint8((bg16 >> 8) & 0xf)
+	argb[2] = uint8((bg16 >> 4) & 0xf)
+	argb[3] = uint8(bg16 & 0xf)
+	argb[4] = uint8(fg16 >> 12)
+	argb[5] = uint8((fg16 >> 8) & 0xf)
+	argb[6] = uint8((fg16 >> 4) & 0xf)
+	argb[7] = uint8(fg16 & 0xf)
+
 	return argb
 }
 
