@@ -15,7 +15,7 @@ func (cv *Canvas) exportTGA() ([]byte, bool) {
 
 	b[0] = 0 // ID length
 	b[1] = 0 // color map type: none
-	b[2] = 2 // image type: uncompressed truecolour
+	b[2] = 2 // image type: uncompressed truecolor
 	// b[3:8] color map specification: none
 	// b[8:10] X origin, b[10:12] Y origin: zero
 	b[12] = byte(w & 0xff)

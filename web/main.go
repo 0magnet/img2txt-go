@@ -54,7 +54,7 @@ func main() {
 		{"html", "HTML"},
 		{"ansi", "ANSI"},
 		{"utf8", "UTF-8 with ANSI escape codes"},
-		{"irc", "IRC colour codes"},
+		{"irc", "IRC color codes"},
 		{"bbfr", "BBCode"},
 		{"svg", "SVG"},
 	}, "html")

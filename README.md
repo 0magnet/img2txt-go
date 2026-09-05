@@ -2,13 +2,13 @@
 
 A Go port of [libcaca](https://github.com/cacalabs/libcaca)'s `img2txt`
 (0.99.beta20) by Sam Hocevar and Jean-Yves Lamoureux. It converts images to
-coloured ASCII/ANSI art and to every text format libcaca supports.
+colored ASCII/ANSI art and to every text format libcaca supports.
 
 No cgo, no libcaca, no Imlib2 — a single static binary.
 
 **[Live demo](https://0magnet.github.io/img2txt-go/)** — drop in an image, pick a width, dither algorithm and output format. It runs the same pipeline the binary does, and the image never leaves the tab.
 
-![img2txt-go in the browser](docs/img2txt-go-demo.png "a generated Mandelbrot set converted to coloured character art, with the width, dither and format controls")
+![img2txt-go in the browser](docs/img2txt-go-demo.png "a generated Mandelbrot set converted to colored character art, with the width, dither and format controls")
 
 ## Install
 
@@ -50,7 +50,7 @@ what Imlib2 supports, or BMP alone when built without it.
 
 Diffed against the system `img2txt` (libcaca 0.99.beta20, Imlib2 backend)
 across images, sizes, dither algorithms and gamma settings: **1,536
-comparisons, all byte-identical**. That covers 12-bit colour rounding, the
+comparisons, all byte-identical**. That covers 12-bit color rounding, the
 Floyd-Steinberg error diffusion, the `\033[s\n\033[u` special case at width 80,
 alpha-transparent cells, and the TGA rasteriser down to the last blended
 pixel.
@@ -78,10 +78,10 @@ gamma table — and therefore a handful of dithered cells — to differ slightly
   seeds its generator from the process id and a timer, so two runs of the C
   program disagree with each other too.
 - `-b`/`-c` are accepted and stored but do not change the output. That is
-  upstream behaviour: both setters are marked `FIXME` in libcaca and are never
+  upstream behavior: both setters are marked `FIXME` in libcaca and are never
   read by the dither.
 
-## Licence
+## License
 
 WTFPL, the same as libcaca. See `LICENSE`.
 
