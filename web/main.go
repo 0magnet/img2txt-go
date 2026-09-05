@@ -63,7 +63,9 @@ func main() {
 		if current == nil {
 			return
 		}
-		c, _ := strconv.Atoi(cols.Get("value").String())
+		// A parse failure leaves c at 0, which the clamp below turns into 8, so
+		// an unreadable field degrades to the minimum width rather than erroring.
+		c, _ := strconv.Atoi(cols.Get("value").String()) //nolint:errcheck
 		if c < 8 {
 			c = 8
 		}
@@ -180,6 +182,6 @@ func sample() []byte {
 		}
 	}
 	var buf bytes.Buffer
-	png.Encode(&buf, img) //nolint:errcheck // an in-memory encode of a valid image
+	png.Encode(&buf, img) //nolint:errcheck,gosec // an in-memory encode of a valid image
 	return buf.Bytes()
 }

@@ -289,7 +289,7 @@ func run() int {
 		fmt.Fprintf(os.Stderr, "%s: Can't export to format '%s'\n", os.Args[0], format)
 		return 0
 	}
-	_, _ = os.Stdout.Write(out)
+	_, _ = os.Stdout.Write(out) //nolint:errcheck,gosec
 	return 0
 }
 

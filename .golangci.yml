@@ -105,6 +105,15 @@ linters:
       - linters:
           - staticcheck
         text: "ST1005:" # error strings should not be capitalized
+      # caca/ is a line-for-line port of libcaca. Its arithmetic is deliberately
+      # narrowing and the ranges are guaranteed by the algorithm rather than by the
+      # Go types, so G115 fires on nearly every conversion in it. Excluding it here
+      # says that once, instead of fifty inline suppressions repeating it.
+      - linters:
+          - gosec
+        text: "G115:"
+        paths:
+          - ^caca/
 issues:
   new: false
 formatters:
