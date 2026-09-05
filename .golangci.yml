@@ -65,6 +65,16 @@ linters:
       - builtin$
       - examples$
     rules:
+      # The export-format list is printed by --help, and this port is verified
+      # by diffing its output against the C img2txt byte for byte. libcaca
+      # describes the IRC format as "IRC with mIRC colours"; Americanizing it
+      # would fail the comparison it exists to pass.
+      #
+      # Scoped to the file rather than turned off, so the port's own prose is
+      # still checked.
+      - linters:
+          - misspell
+        path: caca/export\.go$
       # The staticcheck suggestions skywire turns off. They are style
       # preferences rather than defects, and the point of copying this file is
       # that the same code passes in both places.
