@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://img2txt-go.magnetosphere.net/sitemap.xml
