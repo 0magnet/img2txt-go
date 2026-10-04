@@ -95,6 +95,11 @@ gamma table — and therefore a handful of dithered cells — to differ slightly
 - **`-d random` is not reproducible**, in this port or the original: libcaca
   seeds its generator from the process id and a timer, so two runs of the C
   program disagree with each other too.
+- **troff output differs on transparent cells.** libcaca indexes its 16-entry
+  troff color table with the codes for the default and transparent colors,
+  reading past the end of the array; the system build prints `\m[]\M[(null)]`
+  there. This port writes `black` for both rather than imitate undefined
+  behavior. Opaque images are identical.
 - `-b`/`-c` are accepted and stored but do not change the output. That is
   upstream behavior: both setters are marked `FIXME` in libcaca and are never
   read by the dither.
