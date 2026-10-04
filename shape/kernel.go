@@ -10,6 +10,10 @@ import "math"
 type Kernel struct {
 	sx, sy int
 	taps   [16][]tap // the six internal circles, then the ten external ones
+
+	// The extent of every tap, so a cell whose taps all land inside the grid
+	// can skip clamping each one.
+	minX, minY, maxX, maxY int
 }
 
 type tap struct {
@@ -43,6 +47,8 @@ func NewKernel(sx, sy int) *Kernel {
 			for dx := -2 * sx; dx <= 3*sx; dx++ {
 				if w := acc[[2]int{dx, dy}]; w > 1e-9 {
 					k.taps[c] = append(k.taps[c], tap{dx, dy, w})
+					k.minX, k.maxX = min(k.minX, dx), max(k.maxX, dx)
+					k.minY, k.maxY = min(k.minY, dy), max(k.maxY, dy)
 				}
 			}
 		}
@@ -57,8 +63,16 @@ func (k *Kernel) Cell() (sx, sy int) { return k.sx, k.sy }
 // each 0 to 1. Pixels beyond the grid's edge repeat the nearest edge pixel.
 func (k *Kernel) Sample(ink []float64, w, h, cx, cy int) (in Vector, ext [10]float64) {
 	x0, y0 := cx*k.sx, cy*k.sy
+	inside := x0+k.minX >= 0 && y0+k.minY >= 0 && x0+k.maxX < w && y0+k.maxY < h
+	base := y0*w + x0
 	sum := func(taps []tap) float64 {
 		var s float64
+		if inside {
+			for _, t := range taps {
+				s += t.w * ink[base+t.dy*w+t.dx]
+			}
+			return s
+		}
 		for _, t := range taps {
 			x := min(max(x0+t.dx, 0), w-1)
 			y := min(max(y0+t.dy, 0), h-1)
@@ -99,7 +113,7 @@ func (m *Matcher) Pick(in Vector, ext [10]float64) rune {
 	v := Enhance(in, ext, m.Options)
 	var key uint32
 	for i := range v {
-		q := uint32(math.Min(31, math.Max(0, v[i]*32)))
+		q := uint32(min(31, max(0, v[i]*32)))
 		key = key<<5 | q
 	}
 	if r, ok := m.cache[key]; ok {

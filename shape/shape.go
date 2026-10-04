@@ -148,7 +148,16 @@ func enhance(v, m, e float64) float64 {
 	if m <= 0 || e == 1 {
 		return v
 	}
-	return math.Pow(v/m, e) * m
+	x := v / m
+	// The default exponents are whole numbers, and multiplying is several
+	// times cheaper than math.Pow in a loop that runs twelve times a cell.
+	switch e {
+	case 2:
+		return x * x * m
+	case 3:
+		return x * x * x * m
+	}
+	return math.Pow(x, e) * m
 }
 
 // Enhance applies directional and then global contrast enhancement.
@@ -157,13 +166,15 @@ func Enhance(in Vector, ext [10]float64, o Options) Vector {
 	for i, v := range in {
 		m := v
 		for _, j := range affecting[i] {
-			m = math.Max(m, ext[j])
+			if e := ext[j]; e > m {
+				m = e
+			}
 		}
 		out[i] = enhance(v, m, o.Directional)
 	}
 	m := 0.0
 	for _, v := range out {
-		m = math.Max(m, v)
+		m = max(m, v)
 	}
 	for i, v := range out {
 		out[i] = enhance(v, m, o.Global)
