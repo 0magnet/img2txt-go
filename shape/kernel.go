@@ -57,19 +57,20 @@ func (k *Kernel) Cell() (sx, sy int) { return k.sx, k.sy }
 // each 0 to 1. Pixels beyond the grid's edge repeat the nearest edge pixel.
 func (k *Kernel) Sample(ink []float64, w, h, cx, cy int) (in Vector, ext [10]float64) {
 	x0, y0 := cx*k.sx, cy*k.sy
-	for c := range k.taps {
+	sum := func(taps []tap) float64 {
 		var s float64
-		for _, t := range k.taps[c] {
-			x, y := x0+t.dx, y0+t.dy
-			x = min(max(x, 0), w-1)
-			y = min(max(y, 0), h-1)
+		for _, t := range taps {
+			x := min(max(x0+t.dx, 0), w-1)
+			y := min(max(y0+t.dy, 0), h-1)
 			s += t.w * ink[y*w+x]
 		}
-		if c < 6 {
-			in[c] = s
-		} else {
-			ext[c-6] = s
-		}
+		return s
+	}
+	for i := range in {
+		in[i] = sum(k.taps[i])
+	}
+	for i := range ext {
+		ext[i] = sum(k.taps[len(in)+i])
 	}
 	return in, ext
 }
