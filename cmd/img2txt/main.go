@@ -33,6 +33,7 @@ func usage() {
 	for _, e := range caca.AlgorithmList() {
 		fmt.Fprintf(os.Stderr, "\t\t\t%s: %s\n", e[0], e[1])
 	}
+	fmt.Fprintf(os.Stderr, "  -s, --shape\t\t\tPick characters by shape, not brightness (not in libcaca)\n")
 	fmt.Fprintf(os.Stderr, "  -f, --format=FORMAT\t\tFormat of the resulting image :\n")
 	for _, e := range caca.ExportList() {
 		fmt.Fprintf(os.Stderr, "\t\t\t%s: %s\n", e[0], e[1])
@@ -107,13 +108,14 @@ done:
 var shortOpts = map[byte]bool{
 	'W': true, 'H': true, 'f': true, 'd': true, 'g': true,
 	'b': true, 'c': true, 'h': false, 'v': false, 'x': true, 'y': true,
+	's': false,
 }
 
 // longOpts maps long option names to their short equivalent.
 var longOpts = map[string]byte{
 	"width": 'W', "height": 'H', "font-width": 'x', "font-height": 'y',
 	"format": 'f', "dither": 'd', "gamma": 'g', "brightness": 'b',
-	"contrast": 'c', "help": 'h', "version": 'v',
+	"contrast": 'c', "help": 'h', "version": 'v', "shape": 's',
 }
 
 type parsedOpt struct {
@@ -196,6 +198,7 @@ func run() int {
 	format := "ansi"
 	dither := ""
 	gamma, brightness, contrast := -1.0, -1.0, -1.0
+	shape := false
 
 	opts, ok := parseArgs(argv)
 	if !ok {
@@ -221,6 +224,8 @@ func run() int {
 			brightness = atofC(o.arg)
 		case 'c':
 			contrast = atofC(o.arg)
+		case 's':
+			shape = true
 		case 'h':
 			usage()
 			return 0
@@ -281,6 +286,8 @@ func run() int {
 	if gamma != -1 {
 		im.Dither.SetGamma(float32(gamma))
 	}
+
+	im.Dither.SetShape(shape)
 
 	cv.DitherBitmap(0, 0, cols, lines, im.Dither, im.Pixels)
 

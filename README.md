@@ -33,6 +33,24 @@ HTML with the same markup ansifilter produces:
 img2txt -W 80 -f ansi image.png | ansifilter -H -f
 ```
 
+## Shape mode
+
+`-s` (`--shape`) is the one option that is not in libcaca. Instead of picking
+each character by how bright its cell is, it samples the cell in six circles
+and picks the printable ASCII character whose own six samples, measured from
+the embedded Monospace 9 font, are nearest, after contrast enhancement that
+also looks at the neighboring cells. Edges come out as `/`, `\`, `|`, `_` and
+friends instead of a run of `8`s. Colors and every output format work as
+usual; without `-s` the output is unchanged and still byte-identical to
+libcaca. The method is Alex Harri's, from
+[ASCII characters are not pixels](https://alexharri.com/blog/ascii-rendering);
+the matcher is the standalone package `shape`, whose glyph table
+`go generate ./shape` rebuilds from the font.
+
+```
+img2txt -s -W 80 -f utf8 logo.png
+```
+
 ## What is ported
 
 Dithering algorithms: `none`, `ordered2`, `ordered4`, `ordered8`, `random`,
