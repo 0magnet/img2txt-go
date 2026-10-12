@@ -113,7 +113,9 @@ WTFPL, the same as libcaca. See `LICENSE`.
 Made with [goda](https://github.com/loov/goda):
 
 ```
-go run github.com/loov/goda@latest graph github.com/0magnet/img2txt-go/... | dot -Tsvg -o docs/img2txt-go-goda-graph.svg
+# GOOS=js: the import edges of a wasm program live in js/wasm-tagged
+# files and are invisible to a host-context run
+GOOS=js GOARCH=wasm go run github.com/loov/goda@latest graph github.com/0magnet/img2txt-go/... | dot -Tsvg -o docs/img2txt-go-goda-graph.svg
 ```
 
 ![Dependency Graph](docs/img2txt-go-goda-graph.svg "github.com/0magnet/img2txt-go Dependency Graph")
@@ -132,14 +134,15 @@ Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Go                              19            364            388           3322
 JavaScript                       1             61             36            478
+Markdown                         1             34              0            114
 Makefile                         1             21             52            111
 YAML                             1              0             18            106
-Markdown                         1             34              0            105
 HTML                             1              0              4             77
+Bourne Shell                     1              8             17             31
 JSON                             1              0              0              8
 XML                              1              0              0              4
 Plain Text                       1              1              0              3
 -------------------------------------------------------------------------------
-TOTAL                           27            481            498           4214
+TOTAL                           28            489            515           4254
 -------------------------------------------------------------------------------
 ```
